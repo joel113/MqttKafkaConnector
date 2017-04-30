@@ -1,4 +1,4 @@
-package com.joel.smarthome.mqttkafkaconnector;
+package com.joel.iot.mqttkafkaconnector;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
