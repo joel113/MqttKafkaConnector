@@ -10,6 +10,7 @@ import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
 import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.source.SourceConnector;
+import org.apache.log4j.Logger;
 
 public class MqttKafkaSourceConnector extends SourceConnector {
 	
@@ -17,6 +18,7 @@ public class MqttKafkaSourceConnector extends SourceConnector {
 	private String mqttTopic;
 	private String kafkaTopic;
 	private String clientId;
+	private static Logger log = Logger.getLogger("MqttKafkaSourceConnector");
 	
 	public static final String BROKER_CONFIG = "broker_config";
 	public static final String MQTT_TOPIC_CONFIG = "mqtt_topic_config";
@@ -39,7 +41,8 @@ public class MqttKafkaSourceConnector extends SourceConnector {
 		broker = properties.get(BROKER_CONFIG);
 		mqttTopic = properties.get(MQTT_TOPIC_CONFIG);
 		kafkaTopic = properties.get(KAFKA_TOPIC_CONFIG);
-		clientId = properties.get(CLIENTID_CONFIG);		
+		clientId = properties.get(CLIENTID_CONFIG);
+		log.info(String.format("Read connector with arguments %s, %s, %s and %s.", broker, mqttTopic, kafkaTopic, clientId));
 	}
 
 	@Override

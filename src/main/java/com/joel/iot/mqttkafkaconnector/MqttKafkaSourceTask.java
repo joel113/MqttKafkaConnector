@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
+import org.apache.log4j.Logger;
 
 import com.joel.iot.mqttkafkaconnector.mqtt.MqttSource;
 
@@ -18,6 +19,7 @@ public class MqttKafkaSourceTask extends SourceTask {
 	private String kafkaTopic;
 	private String clientId;
 	private MqttSource source;
+	private static Logger log = Logger.getLogger("MqttKafkaSourceTask");
 	
 	public String version() {
 		return null;
@@ -37,9 +39,10 @@ public class MqttKafkaSourceTask extends SourceTask {
 	public void start(Map<String, String> properties) {
 		broker = properties.get(MqttKafkaSourceConnector.BROKER_CONFIG);
 		mqttTopic = properties.get(MqttKafkaSourceConnector.MQTT_TOPIC_CONFIG);
-		mqttTopic = properties.get(MqttKafkaSourceConnector.KAFKA_TOPIC_CONFIG);
+		kafkaTopic = properties.get(MqttKafkaSourceConnector.KAFKA_TOPIC_CONFIG);
 		clientId = properties.get(MqttKafkaSourceConnector.CLIENTID_CONFIG);
-		source = new MqttSource(broker, mqttTopic, clientId);
+		log.info(String.format("Start task with arguments %s, %s, %s and %s.", broker, mqttTopic, kafkaTopic, clientId));
+		source = new MqttSource(broker, clientId, mqttTopic);
 		source.connect();
 	}
 

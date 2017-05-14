@@ -1,5 +1,7 @@
 package com.joel.iot.mqttkafkaconnector.mqtt;
 
+import java.util.LinkedList;
+
 import org.apache.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -17,18 +19,20 @@ public class MqttSource implements MqttCallback {
 	private String topic;
 	private String clientId;
 	private MqttClient client;
-	private MqttMessage message;
-	private static Logger log = Logger.getLogger("MqttSubject");
+	private LinkedList<MqttMessage> messages;
+	private static Logger LOG = Logger.getLogger("MqttSubject");
 
 	public MqttSource(String broker, String clientId, String topic) {
 		this.broker = broker;
 		this.clientId = clientId;
 		this.topic = topic;
+		this.messages = new LinkedList<>();
 	}
 
 	public void connect() {
 		try {
 			MemoryPersistence persistence = new MemoryPersistence();
+			LOG.info(String.format("Mqtt connect to broker %s and topic %s.", broker, topic));
 			client = new MqttClient(broker, clientId, persistence);
 			MqttConnectOptions options = new MqttConnectOptions();
 			options.setCleanSession(MqttConnectOptions.CLEAN_SESSION_DEFAULT);
@@ -36,7 +40,7 @@ public class MqttSource implements MqttCallback {
 			client.subscribe(topic);
 			client.setCallback(this);
 		} catch (MqttException ex) {
-			log.error(String.format("Mqtt connect exception: %", ex.getMessage()));
+			LOG.error(String.format("Mqtt connect exception: %", ex.getMessage()));
 		}
 	}
 	
@@ -44,7 +48,7 @@ public class MqttSource implements MqttCallback {
 		try {
 			client.disconnect();
 		} catch (MqttException ex) {
-			log.error(String.format("Mqtt connect exception: %", ex.getMessage()));
+			LOG.error(String.format("Mqtt connect exception: %", ex.getMessage()));
 		}
 	}
 
@@ -56,9 +60,9 @@ public class MqttSource implements MqttCallback {
 			}
 			client.publish(this.topic, mqttMessage);
 		} catch (MqttPersistenceException ex) {
-			log.error(String.format("Mqtt publish exception: %", ex.getMessage()));
+			LOG.error(String.format("Mqtt publish exception: %", ex.getMessage()));
 		} catch (MqttException ex) {
-			log.error(String.format("Mqtt publish exception: %", ex.getMessage()));
+			LOG.error(String.format("Mqtt publish exception: %", ex.getMessage()));
 		}
 	}
 
@@ -66,23 +70,33 @@ public class MqttSource implements MqttCallback {
 		try {
 			client.connect();
 		} catch (MqttSecurityException ex) {
-			log.error(String.format("connectionLost: %", ex.getMessage()));
+			LOG.error(String.format("Mqtt connection lost: %", ex.getMessage()));
 		} catch (MqttException ex) {
-			log.error(String.format("connectionLost: %", ex.getMessage()));
+			LOG.error(String.format("Mqtt connection lost: %", ex.getMessage()));
 		}
 	}
 
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
-		this.message = message;
+		LOG.trace("Put a new message into the queue.");
+		messages.addLast(message);
 	}
 
 	public void deliveryComplete(IMqttDeliveryToken token) {
-		log.info("onCompleted");
+		LOG.info("onCompleted");
 	}
 	
 	public String getMqttMessage() {
-		MqttMessage message = this.message;
-		this.message = null;		
+		MqttMessage message;
+		LOG.trace("Trying to get a mqtt message.");
+		do {
+			message = messages.pollFirst();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} while(message == null);
+		LOG.trace("Got a mqtt messages.");
 		return message.toString();
 	}
 	

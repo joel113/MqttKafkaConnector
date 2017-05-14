@@ -29,14 +29,14 @@
 			<version>0.10.2.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.paho</groupId>
-			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-streams</artifactId>
 			<version>0.10.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+			<version>1.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -48,9 +48,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
+				<version>2.6</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -60,11 +59,11 @@
 					</execution>
 				</executions>
 				<configuration>
-					<archive>
+<!-- 					<archive>
 						<manifest>
 							<mainClass>com.joel.iot.mqttkafkaconnector.MqttKafkaConnector</mainClass>
 						</manifest>
-					</archive>
+					</archive> -->
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
